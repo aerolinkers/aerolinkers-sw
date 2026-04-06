@@ -63,9 +63,7 @@ for name, path in DB_PATHS.items():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             message TEXT,
             type TEXT,
-            created_at TEXT,
-            flight_id TEXT,
-            delivered INTEGER DEFAULT 0
+            created_at TEXT
         )
         """)
 

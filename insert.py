@@ -54,10 +54,10 @@ def main():
 
     _insert_rows(
         "notifications",
-        "INSERT OR IGNORE INTO notifications (message, type, created_at, flight_id, delivered) VALUES (?, ?, ?, ?, ?)",
+        "INSERT OR IGNORE INTO notifications (message, type, created_at) VALUES (?, ?, ?)",
         [
-            ("Flight AI202 boarding now", "info", "2023-10-01 10:00:00", "AI202", 0),
-            ("Device DEV001 battery low", "warning", "2023-10-01 09:30:00", None, 0),
+            ("Flight AI202 boarding now", "info", "2023-10-01 10:00:00"),
+            ("Device DEV001 battery low", "warning", "2023-10-01 09:30:00"),
         ],
     )
 

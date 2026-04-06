@@ -708,8 +708,12 @@ def init_db():
     conn.close()
 
 
-# Initialize DB (safe to call on every restart)
-init_db()
+# Initialize DB (safe to call on every restart - but skip on PythonAnywhere)
+try:
+    init_db()
+except Exception as e:
+    # On PythonAnywhere, databases already exist, so initialization errors are expected
+    pass
 
 
 @app.before_request
@@ -905,53 +909,54 @@ def search():
 
 @app.route("/sync", methods=["POST"])
 def sync():
-    data = request.json
+    try:
+        # Get JSON data
+        data = request.get_json(force=True, silent=True)
+        if not data:
+            data = {}
 
-    mac = data.get("device_id")
-    pnr = data.get("pnr")
+        mac = data.get("device_id", "").strip()
+        pnr = data.get("pnr", "").strip()
 
-    # Device lookup
-    conn = get_db_connection("devices")
-    cursor = conn.cursor()
-    cursor.execute("SELECT device_id FROM devices WHERE mac_address=?", (mac,))
-    device = cursor.fetchone()
-    conn.close()
+        # Validate input
+        if not mac or not pnr:
+            return jsonify({"message": "device_id and pnr are required"}), 400
 
-    if not device:
-        return jsonify({"message": "Device not found"}), 404
+        # Passenger lookup
+        conn = get_db_connection("passenger")
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT passenger_id, name, flight_id, seat_number, device_id FROM passenger WHERE passenger_id = ?",
+            (pnr,),
+        )
+        passenger = cursor.fetchone()
+        conn.close()
 
-    # Passenger lookup
-    conn = get_db_connection("passenger")
-    cursor = conn.cursor()
-    cursor.execute(
-        "SELECT passenger_id, name, flight_id, seat_number, device_id FROM passenger WHERE passenger_id = ?",
-        (pnr,),
-    )
-    passenger = cursor.fetchone()
-    conn.close()
+        if not passenger:
+            return jsonify({"message": "Passenger not found"}), 404
 
-    if not passenger:
-        return jsonify({"message": "Passenger not found"}), 404
+        # Flight boarding time lookup
+        conn = get_db_connection("flights")
+        cursor = conn.cursor()
+        cursor.execute("SELECT boarding_time FROM flights WHERE flight_id = ?", (passenger[2],))
+        flight_row = cursor.fetchone()
+        conn.close()
 
-    # Flight boarding time lookup
-    conn = get_db_connection("flights")
-    cursor = conn.cursor()
-    cursor.execute("SELECT boarding_time FROM flights WHERE flight_id = ?", (passenger[2],))
-    flight_row = cursor.fetchone()
-    conn.close()
+        boarding_time = flight_row[0] if flight_row else None
 
-    boarding_time = flight_row[0] if flight_row else None
+        return jsonify(
+            {
+                "device_id": mac,
+                "pnr": passenger[0],
+                "name": passenger[1],
+                "flight": passenger[2],
+                "seat": passenger[3],
+                "boarding_time": boarding_time,
+            }
+        )
 
-    return jsonify(
-        {
-            "device_id": device[0],
-            "pnr": passenger[0],
-            "name": passenger[1],
-            "flight": passenger[2],
-            "seat": passenger[3],
-            "boarding_time": boarding_time,
-        }
-    )
+    except Exception as e:
+        return jsonify({"message": "Server error", "error": str(e)}), 500
 
 
 @app.route("/flights")
@@ -1121,27 +1126,40 @@ def add_passenger():
         flash("Passenger ID and Name are required", "danger")
         return redirect(url_for("dashboard"))
 
-    conn = get_db_connection("passenger")
-    cursor = conn.cursor()
+    try:
+        # Insert into passenger database
+        conn = get_db_connection("passenger")
+        cursor = conn.cursor()
 
-    cursor.execute(
-        "INSERT OR REPLACE INTO passenger (passenger_id, name, ticket_number, flight_id, boarding_status, seat_number) VALUES (?, ?, ?, ?, ?, ?)",
-        (passenger_id, name, ticket_number, flight_id, boarding_status, seat_number),
-    )
+        cursor.execute(
+            "INSERT OR REPLACE INTO passenger (passenger_id, name, ticket_number, flight_id, boarding_status, seat_number) VALUES (?, ?, ?, ?, ?, ?)",
+            (passenger_id, name, ticket_number, flight_id, boarding_status, seat_number),
+        )
+        conn.commit()
 
-    # Automatically assign an available device
-    cursor.execute("SELECT device_id FROM devices WHERE status = 'active' LIMIT 1")
-    available_device = cursor.fetchone()
-    if available_device:
-        device_id = available_device[0]
-        cursor.execute("UPDATE passenger SET device_id = ? WHERE passenger_id = ?", (device_id, passenger_id))
-        cursor.execute("UPDATE devices SET status = 'assigned' WHERE device_id = ?", (device_id,))
-        flash(f"Passenger {passenger_id} added/updated and assigned device {device_id}", "success")
-    else:
-        flash(f"Passenger {passenger_id} added/updated, but no available device to assign", "warning")
+        # Automatically assign an available device (use separate connection for devices DB)
+        conn_devices = get_db_connection("devices")
+        cursor_devices = conn_devices.cursor()
+        cursor_devices.execute("SELECT device_id FROM devices WHERE status = 'active' LIMIT 1")
+        available_device = cursor_devices.fetchone()
+        
+        if available_device:
+            device_id = available_device[0]
+            # Update passenger with device
+            cursor.execute("UPDATE passenger SET device_id = ? WHERE passenger_id = ?", (device_id, passenger_id))
+            # Update device status
+            cursor_devices.execute("UPDATE devices SET status = 'assigned' WHERE device_id = ?", (device_id,))
+            flash(f"Passenger {passenger_id} added/updated and assigned device {device_id}", "success")
+        else:
+            flash(f"Passenger {passenger_id} added/updated, but no available device to assign", "warning")
 
-    conn.commit()
-    conn.close()
+        conn.commit()
+        conn_devices.commit()
+        conn.close()
+        conn_devices.close()
+
+    except Exception as e:
+        flash(f"Error adding passenger: {str(e)}", "danger")
 
     return redirect(url_for("dashboard"))
 
