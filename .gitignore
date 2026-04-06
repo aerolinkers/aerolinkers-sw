@@ -1,0 +1,32 @@
+# Build files
+build/
+*.bin
+*.elf
+*.map
+
+# Arduino / ESP32
+*.ino.cpp
+*.ino.bin
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
+
+# Python (if used)
+__pycache__/
+*.pyc
+
+# PlatformIO (if using)
+.pio/
+.pioenvs/
+.piolibdeps/
