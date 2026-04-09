@@ -1,0 +1,302 @@
+{% extends "base_layout.html" %}
+
+{% block content %}
+<div class="page-container">
+  <!-- Page Header -->
+  <div style="margin-bottom: 24px;">
+    <h1 style="margin: 0 0 4px 0; font-size: 28px; font-weight: 700; color: #F9FAFB;">Audit Log</h1>
+    <p style="margin: 0; color: #9CA3AF; font-size: 14px;">System activity and user actions history</p>
+  </div>
+
+  <!-- Stats Cards -->
+  <div style="
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  ">
+    <div style="
+      background: #111827;
+      border: 1px solid #1F2937;
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+    ">
+      <p style="margin: 0 0 8px 0; color: #9CA3AF; font-size: 12px; text-transform: uppercase;">Total Logs</p>
+      <p style="margin: 0; font-size: 24px; font-weight: 700; color: #0EA5E9;">{{ total_logs or 0 }}</p>
+    </div>
+    <div style="
+      background: #111827;
+      border: 1px solid #1F2937;
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+    ">
+      <p style="margin: 0 0 8px 0; color: #9CA3AF; font-size: 12px; text-transform: uppercase;">Today's Actions</p>
+      <p style="margin: 0; font-size: 24px; font-weight: 700; color: #10B981;">{{ today_count or 0 }}</p>
+    </div>
+    <div style="
+      background: #111827;
+      border: 1px solid #1F2937;
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+    ">
+      <p style="margin: 0 0 8px 0; color: #9CA3AF; font-size: 12px; text-transform: uppercase;">Active Users</p>
+      <p style="margin: 0; font-size: 24px; font-weight: 700; color: #06B6D4;">{{ active_users or 0 }}</p>
+    </div>
+  </div>
+
+  <!-- Audit Log Table -->
+  <div style="
+    background: #111827;
+    border: 1px solid #1F2937;
+    border-radius: 10px;
+    overflow: hidden;
+  ">
+    <table style="
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    ">
+      <thead>
+        <tr style="background: #0F1419; border-bottom: 1px solid #1F2937;">
+          <th style="padding: 12px 16px; text-align: left; color: #9CA3AF; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Timestamp</th>
+          <th style="padding: 12px 16px; text-align: left; color: #9CA3AF; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Action</th>
+          <th style="padding: 12px 16px; text-align: left; color: #9CA3AF; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">User</th>
+          <th style="padding: 12px 16px; text-align: left; color: #9CA3AF; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Resource</th>
+          <th style="padding: 12px 16px; text-align: left; color: #9CA3AF; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Status</th>
+          <th style="padding: 12px 16px; text-align: left; color: #9CA3AF; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if logs %}
+          {% for log in logs %}
+            <tr style="
+              border-bottom: 1px solid #1F2937;
+              background: {% if loop.index % 2 == 0 %}#111827{% else %}#0F1419{% endif %};
+            ">
+              <td style="padding: 12px 16px; color: #9CA3AF; font-family: monospace; font-size: 12px;">{{ log[1][:16] if log[1] else 'N/A' }}</td>
+              <td style="padding: 12px 16px; color: #F9FAFB;">{{ log[2] or 'N/A' }}</td>
+              <td style="padding: 12px 16px; color: #0EA5E9; font-weight: 500;">{{ log[3] or 'System' }}</td>
+              <td style="padding: 12px 16px; color: #9CA3AF;">{{ log[4] or 'General' }}</td>
+              <td style="padding: 12px 16px;">
+                {% if log[5] == 'success' or log[5] == 'Success' %}
+                  <span style="
+                    display: inline-block;
+                    padding: 3px 8px;
+                    background: #10B98133;
+                    color: #10B981;
+                    border-radius: 4px;
+                    font-size: 11px;
+                    font-weight: 600;
+                  ">✓ Success</span>
+                {% elif log[5] == 'error' or log[5] == 'Error' %}
+                  <span style="
+                    display: inline-block;
+                    padding: 3px 8px;
+                    background: #EF444433;
+                    color: #EF4444;
+                    border-radius: 4px;
+                    font-size: 11px;
+                    font-weight: 600;
+                  ">✗ Error</span>
+                {% elif log[5] == 'warning' or log[5] == 'Warning' %}
+                  <span style="
+                    display: inline-block;
+                    padding: 3px 8px;
+                    background: #F59E0B33;
+                    color: #F59E0B;
+                    border-radius: 4px;
+                    font-size: 11px;
+                    font-weight: 600;
+                  ">⚠ Warning</span>
+                {% else %}
+                  <span style="
+                    display: inline-block;
+                    padding: 3px 8px;
+                    background: #6B728033;
+                    color: #D1D5DB;
+                    border-radius: 4px;
+                    font-size: 11px;
+                    font-weight: 600;
+                  ">Info</span>
+                {% endif %}
+              </td>
+              <td style="padding: 12px 16px; color: #9CA3AF; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ log[6] or '-' }}</td>
+            </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="6" style="padding: 24px; text-align: center; color: #6B7280;">
+              No audit logs found
+            </td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div style="
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 20px;
+  ">
+    <button style="
+      padding: 8px 12px;
+      background: #111827;
+      border: 1px solid #1F2937;
+      color: #9CA3AF;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    ">← Previous</button>
+    <button style="
+      padding: 8px 12px;
+      background: #0EA5E933;
+      border: 1px solid #0EA5E9;
+      color: #0EA5E9;
+      border-radius: 6px;
+      font-weight: 600;
+    ">1</button>
+    <button style="
+      padding: 8px 12px;
+      background: #111827;
+      border: 1px solid #1F2937;
+      color: #9CA3AF;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    ">Next →</button>
+  </div>
+</div>
+{% endblock %}
+{% extends 'base.html' %}
+
+{% block title %}Audit Log – Airport Smart Band{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">🔍 Audit Log</h4>
+        <small class="text-white-50">Total logs: {{ total_logs }}</small>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-striped table-hover table-sm">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Action</th>
+                <th>User</th>
+                <th>Resource</th>
+                <th>Status</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if logs %}
+                {% for log in logs %}
+                <tr>
+                  <td><small>{{ log[1][:19].replace('T', ' ') }}</small></td>
+                  <td>
+                    <span class="badge bg-info">{{ log[2] }}</span>
+                  </td>
+                  <td><strong>{{ log[3] }}</strong></td>
+                  <td><code>{{ log[4] }}</code></td>
+                  <td>
+                    {% if log[5] == 'success' %}
+                      <span class="badge bg-success">✓ Success</span>
+                    {% elif log[5] == 'RATE_LIMITED' %}
+                      <span class="badge bg-warning">⚠️ Rate Limited</span>
+                    {% elif log[5] == 'FAILED' %}
+                      <span class="badge bg-danger">✗ Failed</span>
+                    {% else %}
+                      <span class="badge bg-secondary">{{ log[5] }}</span>
+                    {% endif %}
+                  </td>
+                  <td><small class="text-muted">{{ log[6] }}</small></td>
+                </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td colspan="6" class="text-center text-muted">No audit logs found</td>
+                </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if total_pages > 1 %}
+        <nav aria-label="Audit log pagination">
+          <ul class="pagination justify-content-center">
+            {% if current_page > 1 %}
+              <li class="page-item">
+                <a class="page-link" href="{{ url_for('audit_log', page=1) }}">First</a>
+              </li>
+              <li class="page-item">
+                <a class="page-link" href="{{ url_for('audit_log', page=current_page-1) }}">Previous</a>
+              </li>
+            {% endif %}
+
+            {% for page_num in range(max(1, current_page-2), min(total_pages+1, current_page+3)) %}
+              {% if page_num == current_page %}
+                <li class="page-item active">
+                  <span class="page-link">{{ page_num }}</span>
+                </li>
+              {% else %}
+                <li class="page-item">
+                  <a class="page-link" href="{{ url_for('audit_log', page=page_num) }}">{{ page_num }}</a>
+                </li>
+              {% endif %}
+            {% endfor %}
+
+            {% if current_page < total_pages %}
+              <li class="page-item">
+                <a class="page-link" href="{{ url_for('audit_log', page=current_page+1) }}">Next</a>
+              </li>
+              <li class="page-item">
+                <a class="page-link" href="{{ url_for('audit_log', page=total_pages) }}">Last</a>
+              </li>
+            {% endif %}
+          </ul>
+        </nav>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card mt-4">
+      <div class="card-header bg-info text-white">
+        <h5 class="mb-0">📊 Audit Log Legend</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <strong>Actions:</strong>
+            <ul class="small">
+              <li><span class="badge bg-info">LOGIN</span> - User authentication</li>
+              <li><span class="badge bg-info">LOGOUT</span> - User session end</li>
+              <li><span class="badge bg-info">ADD_USER</span> - New user created</li>
+              <li><span class="badge bg-info">DELETE_USER</span> - User removed</li>
+            </ul>
+          </div>
+          <div class="col-md-6">
+            <strong>More Actions:</strong>
+            <ul class="small">
+              <li><span class="badge bg-info">ADD_FLIGHT</span> - Flight added/updated</li>
+              <li><span class="badge bg-info">DELETE_DEVICE</span> - Device removed</li>
+              <li><span class="badge bg-info">DEVICE_SYNC</span> - IoT device sync</li>
+              <li><span class="badge bg-info">CHANGE_PASSWORD</span> - Password reset</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

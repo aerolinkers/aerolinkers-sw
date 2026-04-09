@@ -1,0 +1,166 @@
+{% extends "base_layout.html" %}
+
+{% block content %}
+<div class="page-container">
+  <!-- Page Header -->
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+    <div>
+      <h1 style="margin: 0 0 4px 0; font-size: 28px; font-weight: 700; color: #F9FAFB;">Notifications</h1>
+      <p style="margin: 0; color: #9CA3AF; font-size: 14px;">System alerts and event notifications</p>
+    </div>
+    <button 
+      style="
+        background: #111827;
+        border: 1px solid #1F2937;
+        color: #9CA3AF;
+        padding: 10px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+      "
+      onmouseover="this.style.background='#1F2937'"
+      onmouseout="this.style.background='#111827'"
+    >
+      🗑️ Clear All
+    </button>
+  </div>
+
+  <!-- Filter Tabs -->
+  <div style="
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #1F2937;
+    padding-bottom: 16px;
+  ">
+    <button style="
+      padding: 8px 16px;
+      background: transparent;
+      border: none;
+      color: #0EA5E9;
+      font-weight: 600;
+      cursor: pointer;
+      border-bottom: 2px solid #0EA5E9;
+      font-size: 14px;
+    ">All</button>
+    <button style="
+      padding: 8px 16px;
+      background: transparent;
+      border: none;
+      color: #9CA3AF;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+    "
+    onmouseover="this.style.color='#F9FAFB'"
+    onmouseout="this.style.color='#9CA3AF'"
+    >Alerts</button>
+    <button style="
+      padding: 8px 16px;
+      background: transparent;
+      border: none;
+      color: #9CA3AF;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+    "
+    onmouseover="this.style.color='#F9FAFB'"
+    onmouseout="this.style.color='#9CA3AF'"
+    >Info</button>
+    <button style="
+      padding: 8px 16px;
+      background: transparent;
+      border: none;
+      color: #9CA3AF;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+    "
+    onmouseover="this.style.color='#F9FAFB'"
+    onmouseout="this.style.color='#9CA3AF'"
+    >Warnings</button>
+  </div>
+
+  <!-- Notifications List -->
+  <div style="display: flex; flex-direction: column; gap: 12px;">
+    {% if notifications %}
+      {% for notification in notifications %}
+        <div style="
+          background: #111827;
+          border: 1px solid #1F2937;
+          border-radius: 10px;
+          padding: 16px;
+          display: flex;
+          gap: 16px;
+          align-items: flex-start;
+          transition: all 120ms ease;
+        "
+        onmouseover="this.style.background='#16202B'; this.style.borderColor='#374151'"
+        onmouseout="this.style.background='#111827'; this.style.borderColor='#1F2937'"
+        >
+          <!-- Status Indicator -->
+          <div style="
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 4px;
+            background: {% if notification[2] == 'alert' %}#EF4444{% elif notification[2] == 'warning' %}#F59E0B{% else %}#10B981{% endif %};
+          "></div>
+
+          <!-- Content -->
+          <div style="flex: 1;">
+            <p style="margin: 0 0 6px 0; color: #F9FAFB; font-weight: 500; font-size: 14px;">
+              {{ notification[1] or 'N/A' }}
+            </p>
+            <p style="margin: 0; color: #9CA3AF; font-size: 12px;">
+              {{ notification[3] or 'N/A' }}
+            </p>
+          </div>
+
+          <!-- Type Badge -->
+          <div style="
+            display: inline-block;
+            padding: 4px 10px;
+            background: {% if notification[2] == 'alert' %}#EF444433{% elif notification[2] == 'warning' %}#F59E0B33{% else %}#10B98133{% endif %};
+            color: {% if notification[2] == 'alert' %}#EF4444{% elif notification[2] == 'warning' %}#F59E0B{% else %}#10B981{% endif %};
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            white-space: nowrap;
+          ">
+            {{ notification[2] or 'info' }}
+          </div>
+
+          <!-- Close Button -->
+          <button style="
+            background: transparent;
+            border: none;
+            color: #6B7280;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 0;
+            flex-shrink: 0;
+          "
+          onmouseover="this.style.color='#EF4444'"
+          onmouseout="this.style.color='#6B7280'"
+          >×</button>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div style="
+        background: #111827;
+        border: 1px solid #1F2937;
+        border-radius: 10px;
+        padding: 48px 24px;
+        text-align: center;
+        color: #6B7280;
+      ">
+        <p style="margin: 0; font-size: 14px;">No notifications</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
