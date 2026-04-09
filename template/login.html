@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Airport Smart Band - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0A0F1E 0%, #111827 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #F9FAFB;
+        }
+
+        .login-container {
+            background: #111827;
+            border: 1px solid #1F2937;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 48px;
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo-text {
+            font-size: 28px;
+            font-weight: 700;
+            color: #F9FAFB;
+            margin-bottom: 8px;
+        }
+
+        .logo-sub {
+            font-size: 13px;
+            color: #9CA3AF;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #F9FAFB;
+            margin-bottom: 8px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #9CA3AF;
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #E5E7EB;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 14px;
+            font-size: 14px;
+            border: 1px solid #1F2937;
+            border-radius: 8px;
+            background: #0F1419;
+            color: #F9FAFB;
+            transition: all 200ms ease;
+        }
+
+        input::placeholder {
+            color: #6B7280;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #0EA5E9;
+            background: #16202B;
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 200ms ease;
+            margin-top: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0EA5E9, #06B6D4);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(14, 165, 233, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .alert {
+            padding: 14px 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            font-size: 13px;
+            border: 1px solid;
+        }
+
+        .alert-danger {
+            background: #7F1D1D;
+            color: #FCA5A5;
+            border-color: #EF4444;
+        }
+
+        .alert-success {
+            background: #064E3B;
+            color: #A7F3D0;
+            border-color: #10B981;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 24px;
+            color: #9CA3AF;
+            font-size: 12px;
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 32px 24px;
+                border-radius: 8px;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            .logo-text {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <div class="logo-text">✈️ Aerolinkers</div>
+            <div class="logo-sub">Airport Smart Band System</div>
+        </div>
+
+        <h1>Login</h1>
+        <p class="subtitle">Welcome back! Sign in to continue.</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('login') }}">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Enter your username" required autofocus>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Sign In</button>
+        </form>
+
+        <div class="footer">
+            © 2026 Airport Smart Band. All rights reserved.
+        </div>
+    </div>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login – Airport Smart Band</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0c12;
+      --surface: #111520;
+      --surface2: #171d2e;
+      --border: rgba(255,255,255,0.07);
+      --accent: #00d4ff;
+      --accent2: #7c6dfa;
+      --green: #00e5a0;
+      --accent3: #ff6b6b;
+      --yellow: #ffcc00;
+      --text: #e8eaf0;
+      --text-muted: #6b7280;
+      --font-head: 'Syne', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+      --font-mono: 'DM Mono', monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,212,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,255,0.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+    }
+
+    /* Glow orbs */
+    body::after {
+      content: '';
+      position: fixed;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,212,255,0.06) 0%, transparent 70%);
+      top: -100px; left: -100px;
+      pointer-events: none;
+    }
+
+    .orb2 {
+      position: fixed;
+      width: 400px; height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(124,109,250,0.07) 0%, transparent 70%);
+      bottom: -80px; right: -80px;
+      pointer-events: none;
+    }
+
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 44px 40px;
+      width: 100%;
+      max-width: 400px;
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+      animation: slideUp 0.5s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .login-header {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+    .login-logo {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .login-logo span {
+      display: inline-block;
+      width: 28px; height: 28px;
+      background: rgba(0,212,255,0.1);
+      border: 1px solid rgba(0,212,255,0.2);
+      border-radius: 8px;
+      line-height: 26px;
+      margin-right: 6px;
+      font-size: 14px;
+    }
+    .login-title {
+      font-family: var(--font-head);
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.2;
+    }
+    .login-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    .alerts { margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px; }
+    .alert {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      border-left: 3px solid;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .alert-success { background: rgba(0,229,160,0.08); border-color: var(--green); color: var(--green); }
+    .alert-danger  { background: rgba(255,107,107,0.08); border-color: var(--accent3); color: var(--accent3); }
+    .alert-warning { background: rgba(255,204,0,0.08); border-color: var(--yellow); color: var(--yellow); }
+    .alert-info    { background: rgba(0,212,255,0.08); border-color: var(--accent); color: var(--accent); }
+
+    .form-group { margin-bottom: 18px; }
+    .form-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 7px;
+    }
+    .form-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .form-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(0,212,255,0.1);
+    }
+    .form-input::placeholder { color: var(--text-muted); }
+
+    .btn-login {
+      width: 100%;
+      padding: 13px;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      font-family: var(--font-head);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+      letter-spacing: 0.03em;
+      margin-top: 6px;
+    }
+    .btn-login:hover {
+      background: #33ddff;
+      box-shadow: 0 0 24px rgba(0,212,255,0.35);
+      transform: translateY(-1px);
+    }
+    .btn-login:active { transform: translateY(0); }
+
+    .demo-hint {
+      margin-top: 24px;
+      padding: 14px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+    .demo-hint strong {
+      color: var(--text);
+      font-family: var(--font-mono);
+    }
+
+    .login-footer {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .login-footer span {
+      color: var(--accent);
+      font-family: var(--font-mono);
+    }
+  </style>
+</head>
+<body>
+<div class="orb2"></div>
+
+<div class="login-card">
+  <div class="login-header">
+    <div class="login-logo"><span>✈</span> AeroLinkers</div>
+    <div class="login-title">Smart Band<br>Control Panel</div>
+    <div class="login-sub">Airport Operations Dashboard</div>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="alerts">
+      {% for category, message in messages %}
+      <div class="alert alert-{{ category }}">
+        {% if category == 'success' %}✓{% elif category == 'danger' %}✕{% elif category == 'warning' %}⚠{% else %}ℹ{% endif %}
+        {{ message }}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  {% endwith %}
+
+  <form method="POST" action="/login">
+    <div class="form-group">
+      <label class="form-label" for="username">Username</label>
+      <input class="form-input" id="username" name="username" type="text"
+             placeholder="Enter username" autocomplete="username"
+             value="{{ default_username if demo_mode else '' }}" />
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="password">Password</label>
+      <input class="form-input" id="password" name="password" type="password"
+             placeholder="Enter password" autocomplete="current-password"
+             value="{{ default_password if demo_mode else '' }}" />
+    </div>
+    <button class="btn-login" type="submit">Sign In →</button>
+  </form>
+
+  {% if demo_mode %}
+  <div class="demo-hint">
+    Demo mode · Login: <strong>{{ default_username }}</strong> / <strong>{{ default_password }}</strong>
+  </div>
+  {% endif %}
+
+  <div class="login-footer">
+    Airport Smart Band <span>v{{ app_version }}</span>
+  </div>
+</div>
+
+</body>
+</html>

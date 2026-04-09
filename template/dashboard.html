@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard – Airport Smart Band</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0c12;
+      --surface: #111520;
+      --surface2: #171d2e;
+      --border: rgba(255,255,255,0.07);
+      --accent: #00d4ff;
+      --accent2: #7c6dfa;
+      --accent3: #ff6b6b;
+      --green: #00e5a0;
+      --yellow: #ffcc00;
+      --text: #e8eaf0;
+      --text-muted: #6b7280;
+      --font-head: 'Syne', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+      --font-mono: 'DM Mono', monospace;
+      --radius: 12px;
+      --glow: 0 0 24px rgba(0,212,255,0.12);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 220px;
+      min-height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 100;
+    }
+
+    .sidebar-logo {
+      padding: 24px 20px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-logo .logo-mark {
+      font-family: var(--font-head);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .sidebar-logo .logo-name {
+      font-family: var(--font-head);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      margin-top: 4px;
+      line-height: 1.2;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 16px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .nav-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 12px 10px 6px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: all 0.15s;
+      cursor: pointer;
+    }
+    .nav-item:hover { background: var(--surface2); color: var(--text); }
+    .nav-item.active { background: rgba(0,212,255,0.1); color: var(--accent); }
+    .nav-item .icon { font-size: 16px; width: 18px; text-align: center; }
+
+    .sidebar-footer {
+      padding: 16px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; color: #fff;
+      font-family: var(--font-head);
+      flex-shrink: 0;
+    }
+    .sidebar-user { flex: 1; min-width: 0; }
+    .sidebar-user .name { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sidebar-user .role { font-size: 11px; color: var(--text-muted); }
+    .logout-btn {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 16px;
+      transition: color 0.15s;
+    }
+    .logout-btn:hover { color: var(--accent3); }
+
+    /* ── MAIN ── */
+    .main {
+      margin-left: 220px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      height: 60px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      background: var(--bg);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .topbar-title {
+      font-family: var(--font-head);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .badge-pill {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 100px;
+      background: rgba(0,212,255,0.1);
+      color: var(--accent);
+      border: 1px solid rgba(0,212,255,0.2);
+    }
+
+    .content {
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    /* ── FLASH MESSAGES ── */
+    .alerts { display: flex; flex-direction: column; gap: 8px; }
+    .alert {
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      font-size: 13.5px;
+      border-left: 3px solid;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .alert-success { background: rgba(0,229,160,0.08); border-color: var(--green); color: var(--green); }
+    .alert-danger  { background: rgba(255,107,107,0.08); border-color: var(--accent3); color: var(--accent3); }
+    .alert-warning { background: rgba(255,204,0,0.08); border-color: var(--yellow); color: var(--yellow); }
+    .alert-info    { background: rgba(0,212,255,0.08); border-color: var(--accent); color: var(--accent); }
+
+    /* ── STAT CARDS ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .stat-card:hover {
+      border-color: rgba(0,212,255,0.2);
+      box-shadow: var(--glow);
+    }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      opacity: 0.06;
+      transform: translate(20px, -20px);
+    }
+    .stat-card.c1::before { background: var(--accent); }
+    .stat-card.c2::before { background: var(--accent2); }
+    .stat-card.c3::before { background: var(--green); }
+    .stat-card.c4::before { background: var(--yellow); }
+    .stat-icon { font-size: 22px; margin-bottom: 12px; }
+    .stat-value {
+      font-family: var(--font-head);
+      font-size: 32px;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .stat-card.c1 .stat-value { color: var(--accent); }
+    .stat-card.c2 .stat-value { color: var(--accent2); }
+    .stat-card.c3 .stat-value { color: var(--green); }
+    .stat-card.c4 .stat-value { color: var(--yellow); }
+    .stat-label { font-size: 12px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; }
+
+    /* ── SECTION ── */
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .section-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .section-title {
+      font-family: var(--font-head);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-count {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 2px 8px;
+      border-radius: 100px;
+    }
+    .section-body { padding: 20px; }
+
+    /* ── FORMS ── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      align-items: end;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .form-input, .form-select {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 12px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 13.5px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      width: 100%;
+    }
+    .form-input:focus, .form-select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(0,212,255,0.08);
+    }
+    .form-input::placeholder { color: var(--text-muted); }
+    .form-select option { background: var(--surface2); }
+
+    .btn {
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-family: var(--font-head);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+    }
+    .btn-primary:hover { background: #33ddff; box-shadow: 0 0 16px rgba(0,212,255,0.3); }
+    .btn-danger {
+      background: transparent;
+      color: var(--accent3);
+      border: 1px solid rgba(255,107,107,0.3);
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+    .btn-danger:hover { background: rgba(255,107,107,0.1); border-color: var(--accent3); }
+    .btn-ghost {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { border-color: rgba(255,255,255,0.2); }
+
+    /* ── TABLE ── */
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+    thead th {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    tbody tr {
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      transition: background 0.1s;
+    }
+    tbody tr:hover { background: rgba(255,255,255,0.02); }
+    tbody tr:last-child { border-bottom: none; }
+    td {
+      padding: 11px 14px;
+      color: var(--text);
+      vertical-align: middle;
+    }
+    td .mono { font-family: var(--font-mono); font-size: 12.5px; color: var(--accent); }
+
+    /* ── STATUS BADGES ── */
+    .status-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 100px;
+      font-family: var(--font-mono);
+    }
+    .status-badge.on-time, .status-badge.active, .status-badge.boarded {
+      background: rgba(0,229,160,0.12);
+      color: var(--green);
+      border: 1px solid rgba(0,229,160,0.2);
+    }
+    .status-badge.delayed {
+      background: rgba(255,204,0,0.12);
+      color: var(--yellow);
+      border: 1px solid rgba(255,204,0,0.2);
+    }
+    .status-badge.waiting {
+      background: rgba(0,212,255,0.1);
+      color: var(--accent);
+      border: 1px solid rgba(0,212,255,0.2);
+    }
+    .status-badge.assigned {
+      background: rgba(124,109,250,0.12);
+      color: var(--accent2);
+      border: 1px solid rgba(124,109,250,0.2);
+    }
+    .status-badge.cancelled {
+      background: rgba(255,107,107,0.12);
+      color: var(--accent3);
+      border: 1px solid rgba(255,107,107,0.2);
+    }
+
+    /* ── SEARCH BOX ── */
+    .search-bar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .search-input-wrap {
+      position: relative;
+      flex: 1;
+    }
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    .search-input-wrap .form-input {
+      padding-left: 36px;
+    }
+
+    /* ── PASSENGER RESULT ── */
+    .passenger-result {
+      background: linear-gradient(135deg, rgba(0,212,255,0.06), rgba(124,109,250,0.06));
+      border: 1px solid rgba(0,212,255,0.15);
+      border-radius: var(--radius);
+      padding: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .result-item .result-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .result-item .result-value {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .result-item .result-value.highlight {
+      color: var(--accent);
+      font-family: var(--font-mono);
+    }
+
+    /* ── NOTIFICATION ITEM ── */
+    .notif-list { display: flex; flex-direction: column; gap: 8px; }
+    .notif-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 8px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+    }
+    .notif-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .notif-dot.info { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+    .notif-dot.warning { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); }
+    .notif-dot.danger { background: var(--accent3); box-shadow: 0 0 6px var(--accent3); }
+    .notif-dot.success { background: var(--green); box-shadow: 0 0 6px var(--green); }
+    .notif-text { flex: 1; font-size: 13.5px; color: var(--text); }
+    .notif-time { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); }
+
+    /* ── TWO COL LAYOUT ── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .three-col { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+
+    /* ── DIVIDER ── */
+    hr { border: none; border-top: 1px solid var(--border); }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .two-col, .three-col { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .main { margin-left: 0; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .stat-card { animation: fadeIn 0.4s ease both; }
+    .stat-card:nth-child(1) { animation-delay: 0.05s; }
+    .stat-card:nth-child(2) { animation-delay: 0.1s; }
+    .stat-card:nth-child(3) { animation-delay: 0.15s; }
+    .stat-card:nth-child(4) { animation-delay: 0.2s; }
+
+    /* battery bar */
+    .battery-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .battery-bar-track {
+      width: 48px;
+      height: 6px;
+      background: var(--surface2);
+      border-radius: 3px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .battery-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: var(--green);
+      transition: width 0.3s;
+    }
+    .battery-bar-fill.low { background: var(--accent3); }
+    .battery-bar-fill.mid { background: var(--yellow); }
+    .battery-val { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+  </style>
+</head>
+<body>
+
+<!-- ══════════ SIDEBAR ══════════ -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">✈ AeroLinkers</div>
+    <div class="logo-name">Smart Band<br>Control</div>
+  </div>
+
+  <div class="sidebar-nav">
+    <div class="nav-label">Operations</div>
+    <a href="/dashboard" class="nav-item active">
+      <span class="icon">⊞</span> Dashboard
+    </a>
+    <a href="/flight" class="nav-item">
+      <span class="icon">✈</span> Flights
+    </a>
+    <a href="/passenger" class="nav-item">
+      <span class="icon">👤</span> Passengers
+    </a>
+    <a href="/devices" class="nav-item">
+      <span class="icon">📡</span> Devices
+    </a>
+    <a href="/notification" class="nav-item">
+      <span class="icon">🔔</span> Notifications
+    </a>
+
+    <div class="nav-label">Admin</div>
+    <a href="/admin/users" class="nav-item">
+      <span class="icon">🔑</span> Users
+    </a>
+    <a href="/admin/audit_log" class="nav-item">
+      <span class="icon">📋</span> Audit Log
+    </a>
+    <a href="/health" class="nav-item">
+      <span class="icon">💚</span> Health
+    </a>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="avatar">{{ session.get('user', 'A')[0].upper() }}</div>
+    <div class="sidebar-user">
+      <div class="name">{{ session.get('user', 'Admin') }}</div>
+      <div class="role">{{ user_role | capitalize }}</div>
+    </div>
+    <a href="/logout" class="logout-btn" title="Logout">⏻</a>
+  </div>
+</nav>
+
+<!-- ══════════ MAIN ══════════ -->
+<div class="main">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-title">Dashboard</div>
+    <div class="topbar-right">
+      <span class="badge-pill">v{{ app_version }}</span>
+      <span class="badge-pill" style="background:rgba(0,229,160,0.1);color:var(--green);border-color:rgba(0,229,160,0.2)">● Live</span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      <div class="alerts">
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+          {% if category == 'success' %}✓{% elif category == 'danger' %}✕{% elif category == 'warning' %}⚠{% else %}ℹ{% endif %}
+          {{ message }}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- Stat Cards -->
+    <div class="stats-grid">
+      <div class="stat-card c1">
+        <div class="stat-icon">✈</div>
+        <div class="stat-value">{{ total_flights }}</div>
+        <div class="stat-label">Total Flights</div>
+      </div>
+      <div class="stat-card c2">
+        <div class="stat-icon">👤</div>
+        <div class="stat-value">{{ passengers | length }}</div>
+        <div class="stat-label">Passengers</div>
+      </div>
+      <div class="stat-card c3">
+        <div class="stat-icon">📡</div>
+        <div class="stat-value">{{ total_devices }}</div>
+        <div class="stat-label">Smart Bands</div>
+      </div>
+      <div class="stat-card c4">
+        <div class="stat-icon">🔔</div>
+        <div class="stat-value">{{ notifications | length }}</div>
+        <div class="stat-label">Notifications</div>
+      </div>
+    </div>
+
+    <!-- Flights + Notifications -->
+    <div class="three-col">
+
+      <!-- Flights Table -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">
+            ✈ Active Flights
+            <span class="section-count">{{ total_flights }}</span>
+          </div>
+          {% if user_role != 'staff' %}
+          <button class="btn btn-primary" onclick="document.getElementById('add-flight-form').style.display = document.getElementById('add-flight-form').style.display === 'none' ? 'block' : 'none'">+ Add Flight</button>
+          {% endif %}
+        </div>
+
+        {% if user_role != 'staff' %}
+        <div id="add-flight-form" style="display:none; padding: 16px 20px; border-bottom: 1px solid var(--border); background: var(--surface2);">
+          <form method="POST" action="/add_flight">
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Flight ID</label>
+                <input class="form-input" name="flight_id" placeholder="e.g., AI202" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Boarding Time</label>
+                <input class="form-input" name="boarding_time" placeholder="HH:MM" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Departure</label>
+                <input class="form-input" name="departure" placeholder="HH:MM" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Gate</label>
+                <input class="form-input" name="gate" placeholder="e.g., Gate 12" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Status</label>
+                <select class="form-select" name="status">
+                  <option value="On Time">On Time</option>
+                  <option value="Delayed">Delayed</option>
+                  <option value="Cancelled">Cancelled</option>
+                  <option value="Boarding">Boarding</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Aircraft</label>
+                <input class="form-input" name="aircraft" placeholder="Boeing 737" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Origin</label>
+                <input class="form-input" name="origin" placeholder="City" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Destination</label>
+                <input class="form-input" name="destination" placeholder="City" />
+              </div>
+              <div class="form-group" style="align-self:end">
+                <button class="btn btn-primary" type="submit">Add Flight</button>
+              </div>
+            </div>
+          </form>
+        </div>
+        {% endif %}
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Flight</th>
+                <th>Boarding</th>
+                <th>Departure</th>
+                <th>Gate</th>
+                <th>Status</th>
+                {% if user_role != 'staff' %}<th>Actions</th>{% endif %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for f in flights %}
+              <tr>
+                <td><span class="mono">{{ f[0] }}</span></td>
+                <td>{{ f[1] }}</td>
+                <td>{{ f[2] }}</td>
+                <td>{{ f[3] }}</td>
+                <td>
+                  <span class="status-badge {{ f[4] | lower | replace(' ', '-') }}">{{ f[4] }}</span>
+                </td>
+                {% if user_role != 'staff' %}
+                <td>
+                  <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                    <form method="POST" action="/update" style="display:inline-flex;gap:4px;align-items:center;">
+                      <input type="hidden" name="flight" value="{{ f[0] }}">
+                      <input class="form-input" name="new_time" placeholder="New time" style="width:80px;padding:5px 8px;font-size:12px;" />
+                      <button class="btn btn-ghost" type="submit" style="padding:5px 8px;font-size:11px;">✎</button>
+                    </form>
+                    <form method="POST" action="/delete_flight" onsubmit="return confirm('Delete flight {{ f[0] }}?')">
+                      <input type="hidden" name="flight_id" value="{{ f[0] }}">
+                      <button class="btn btn-danger" type="submit">✕</button>
+                    </form>
+                  </div>
+                </td>
+                {% endif %}
+              </tr>
+              {% else %}
+              <tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:24px;">No flights found</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Notifications -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">
+            🔔 Notifications
+          </div>
+          {% if user_role != 'staff' %}
+          <button class="btn btn-primary" style="font-size:11px;padding:6px 12px;" onclick="document.getElementById('add-notif-form').style.display = document.getElementById('add-notif-form').style.display === 'none' ? 'block' : 'none'">+</button>
+          {% endif %}
+        </div>
+
+        {% if user_role != 'staff' %}
+        <div id="add-notif-form" style="display:none; padding:14px 16px; border-bottom:1px solid var(--border); background:var(--surface2);">
+          <form method="POST" action="/add_notification">
+            <div class="form-grid" style="grid-template-columns:1fr;">
+              <div class="form-group">
+                <label class="form-label">Message</label>
+                <input class="form-input" name="message" placeholder="Notification message" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Type</label>
+                <select class="form-select" name="notification_type">
+                  <option value="info">Info</option>
+                  <option value="warning">Warning</option>
+                  <option value="danger">Danger</option>
+                  <option value="success">Success</option>
+                </select>
+              </div>
+              <button class="btn btn-primary" type="submit">Send</button>
+            </div>
+          </form>
+        </div>
+        {% endif %}
+
+        <div class="section-body">
+          <div class="notif-list">
+            {% for n in notifications %}
+            <div class="notif-item">
+              <div class="notif-dot {{ n[2] }}"></div>
+              <div class="notif-text">{{ n[1] }}</div>
+              {% if user_role != 'staff' %}
+              <form method="POST" action="/delete_notification" style="flex-shrink:0;">
+                <input type="hidden" name="notification_id" value="{{ n[0] }}">
+                <button class="btn btn-danger" type="submit" style="padding:3px 8px;font-size:11px;">✕</button>
+              </form>
+              {% endif %}
+            </div>
+            {% else %}
+            <div style="color:var(--text-muted);font-size:13px;text-align:center;padding:16px;">No notifications</div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /three-col -->
+
+    <!-- Passenger Search -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">🔍 Search Passenger</div>
+      </div>
+      <div class="section-body">
+        <form method="POST" action="/search">
+          <div class="search-bar">
+            <div class="search-input-wrap" style="max-width:360px;">
+              <span class="search-icon">⌕</span>
+              <input class="form-input" name="pnr" placeholder="Enter Passenger ID or PNR"
+                value="{{ search_pnr if search_pnr else '' }}" />
+            </div>
+            <button class="btn btn-primary" type="submit">Search</button>
+          </div>
+        </form>
+
+        {% if passenger %}
+        <div class="passenger-result">
+          <div class="result-item">
+            <div class="result-label">PNR / ID</div>
+            <div class="result-value highlight">{{ passenger[0] }}</div>
+          </div>
+          <div class="result-item">
+            <div class="result-label">Name</div>
+            <div class="result-value">{{ passenger[1] }}</div>
+          </div>
+          <div class="result-item">
+            <div class="result-label">Flight</div>
+            <div class="result-value highlight">{{ passenger[2] }}</div>
+          </div>
+          <div class="result-item">
+            <div class="result-label">Seat</div>
+            <div class="result-value">{{ passenger[3] }}</div>
+          </div>
+          <div class="result-item">
+            <div class="result-label">Boarding Time</div>
+            <div class="result-value highlight">{{ passenger[4] or '—' }}</div>
+          </div>
+          <div class="result-item">
+            <div class="result-label">Device ID</div>
+            <div class="result-value">{{ passenger[5] or 'Unassigned' }}</div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Passengers Table + Add -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">
+          👤 Passengers
+          <span class="section-count">{{ passengers | length }}</span>
+        </div>
+        <button class="btn btn-primary" onclick="document.getElementById('add-passenger-form').style.display = document.getElementById('add-passenger-form').style.display === 'none' ? 'block' : 'none'">+ Add Passenger</button>
+      </div>
+
+      <div id="add-passenger-form" style="display:none; padding:16px 20px; border-bottom:1px solid var(--border); background:var(--surface2);">
+        <form method="POST" action="/add_passenger">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Passenger ID</label>
+              <input class="form-input" name="passenger_id" placeholder="e.g., P001" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input class="form-input" name="name" placeholder="Full name" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Ticket Number</label>
+              <input class="form-input" name="ticket_number" placeholder="Ticket #" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Flight</label>
+              <select class="form-select" name="flight_id">
+                <option value="">-- Select Flight --</option>
+                {% for f in flights %}
+                <option value="{{ f[0] }}">{{ f[0] }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Seat Number</label>
+              <input class="form-input" name="seat_number" placeholder="e.g., 12A" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Boarding Status</label>
+              <select class="form-select" name="boarding_status">
+                <option value="Waiting">Waiting</option>
+                <option value="Boarded">Boarded</option>
+                <option value="Checked In">Checked In</option>
+              </select>
+            </div>
+            <div class="form-group" style="align-self:end">
+              <button class="btn btn-primary" type="submit">Add Passenger</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Flight</th>
+              <th>Seat</th>
+              <th>Status</th>
+              <th>Device</th>
+              {% if user_role != 'staff' %}<th>Actions</th>{% endif %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in passengers %}
+            <tr>
+              <td><span class="mono">{{ p[0] }}</span></td>
+              <td>{{ p[1] }}</td>
+              <td><span class="mono">{{ p[3] }}</span></td>
+              <td>{{ p[5] }}</td>
+              <td>
+                <span class="status-badge {{ p[4] | lower if p[4] else 'waiting' }}">{{ p[4] or 'Waiting' }}</span>
+              </td>
+              <td>
+                {% if p[6] %}
+                  <span class="mono" style="color:var(--green);">{{ p[6] }}</span>
+                {% else %}
+                  <span style="color:var(--text-muted);font-size:12px;">—</span>
+                {% endif %}
+              </td>
+              {% if user_role != 'staff' %}
+              <td>
+                <form method="POST" action="/delete_passenger" onsubmit="return confirm('Delete passenger {{ p[0] }}?')">
+                  <input type="hidden" name="passenger_id" value="{{ p[0] }}">
+                  <button class="btn btn-danger">✕ Delete</button>
+                </form>
+              </td>
+              {% endif %}
+            </tr>
+            {% else %}
+            <tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:24px;">No passengers found</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Devices Table + Add -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">
+          📡 Smart Band Devices
+          <span class="section-count">{{ total_devices }}</span>
+        </div>
+        {% if user_role != 'staff' %}
+        <button class="btn btn-primary" onclick="document.getElementById('add-device-form').style.display = document.getElementById('add-device-form').style.display === 'none' ? 'block' : 'none'">+ Add Device</button>
+        {% endif %}
+      </div>
+
+      {% if user_role != 'staff' %}
+      <div id="add-device-form" style="display:none; padding:16px 20px; border-bottom:1px solid var(--border); background:var(--surface2);">
+        <form method="POST" action="/add_device">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Device ID</label>
+              <input class="form-input" name="device_id" placeholder="e.g., DEV001" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">MAC Address</label>
+              <input class="form-input" name="mac_address" placeholder="e.g., 00:1A:2B:3C:4D:5E" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Status</label>
+              <select class="form-select" name="status">
+                <option value="active">Active</option>
+                <option value="assigned">Assigned</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Battery Level (%)</label>
+              <input class="form-input" name="battery_level" type="number" min="0" max="100" placeholder="100" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Signal Strength (dBm)</label>
+              <input class="form-input" name="signal_strength" type="number" placeholder="-50" />
+            </div>
+            <div class="form-group" style="align-self:end">
+              <button class="btn btn-primary" type="submit">Add Device</button>
+            </div>
+          </div>
+        </form>
+      </div>
+      {% endif %}
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Device ID</th>
+              <th>MAC Address</th>
+              <th>Status</th>
+              <th>Battery</th>
+              <th>Signal</th>
+              <th>Last Seen</th>
+              {% if user_role != 'staff' %}<th>Actions</th>{% endif %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for d in devices %}
+            <tr>
+              <td><span class="mono">{{ d[0] }}</span></td>
+              <td><span style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);">{{ d[1] }}</span></td>
+              <td>
+                <span class="status-badge {{ d[2] | lower }}">{{ d[2] }}</span>
+              </td>
+              <td>
+                <div class="battery-bar">
+                  <div class="battery-bar-track">
+                    <div class="battery-bar-fill {% if d[3] and d[3] < 20 %}low{% elif d[3] and d[3] < 50 %}mid{% endif %}"
+                         style="width: {{ d[3] if d[3] else 0 }}%"></div>
+                  </div>
+                  <span class="battery-val">{{ d[3] if d[3] else '—' }}%</span>
+                </div>
+              </td>
+              <td>
+                <span style="font-family:var(--font-mono);font-size:12px;">{{ d[4] if d[4] else '—' }} <span style="color:var(--text-muted);">dBm</span></span>
+              </td>
+              <td style="font-size:12px;color:var(--text-muted);">{{ d[5][:16] if d[5] else '—' }}</td>
+              {% if user_role != 'staff' %}
+              <td>
+                <form method="POST" action="/delete_device" onsubmit="return confirm('Delete device {{ d[0] }}?')">
+                  <input type="hidden" name="device_id" value="{{ d[0] }}">
+                  <button class="btn btn-danger">✕</button>
+                </form>
+              </td>
+              {% endif %}
+            </tr>
+            {% else %}
+            <tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:24px;">No devices found</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+</body>
+</html>

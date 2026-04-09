@@ -1,0 +1,401 @@
+{% extends "base_layout.html" %}
+
+{% block title %}Flights - Aerolinkers{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        margin-bottom: var(--spacing-2xl);
+    }
+
+    .page-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: var(--color-text-primary);
+        margin-bottom: var(--spacing-md);
+    }
+
+    .page-subtitle {
+        font-size: 14px;
+        color: var(--color-text-muted);
+    }
+
+    .action-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--spacing-lg);
+        margin-bottom: var(--spacing-lg);
+        flex-wrap: wrap;
+    }
+
+    .action-bar-left {
+        display: flex;
+        gap: var(--spacing-md);
+        align-items: center;
+        flex: 1;
+        min-width: 300px;
+    }
+
+    .search-input-box {
+        flex: 1;
+        max-width: 300px;
+        background-color: var(--color-surface-2);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        padding: var(--spacing-md);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+    }
+
+    .search-input-box input {
+        background: transparent;
+        border: none;
+        color: var(--color-text-primary);
+        font-size: 13px;
+        outline: none;
+        flex: 1;
+    }
+
+    .search-input-box input::placeholder {
+        color: var(--color-text-muted);
+    }
+
+    .filter-select {
+        background-color: var(--color-surface-2);
+        border: 1px solid var(--color-border);
+        color: var(--color-text-primary);
+        padding: var(--spacing-sm) var(--spacing-md);
+        border-radius: var(--radius-md);
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .filter-select:hover,
+    .filter-select:focus {
+        border-color: var(--color-accent);
+        background-color: var(--color-surface);
+    }
+
+    .btn-primary {
+        background-color: var(--color-accent);
+        color: white;
+        border: none;
+        padding: var(--spacing-sm) var(--spacing-lg);
+        border-radius: var(--radius-md);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        transition: all 0.2s ease;
+    }
+
+    .btn-primary:hover {
+        background-color: #0284c7;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+    }
+
+    .btn-ghost {
+        background: transparent;
+        color: var(--color-text-muted);
+        border: 1px solid var(--color-border);
+        padding: var(--spacing-sm) var(--spacing-lg);
+        border-radius: var(--radius-md);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        transition: all 0.2s ease;
+    }
+
+    .btn-ghost:hover {
+        background-color: var(--color-surface-2);
+        color: var(--color-text-primary);
+    }
+
+    .table-container {
+        background-color: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        overflow: hidden;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    thead {
+        background-color: var(--color-bg-page);
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    th {
+        padding: var(--spacing-md) var(--spacing-lg);
+        text-align: left;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--color-text-muted);
+    }
+
+    td {
+        padding: var(--spacing-md) var(--spacing-lg);
+        border-bottom: 1px solid var(--color-border);
+        font-size: 13px;
+        color: var(--color-text-primary);
+    }
+
+    tbody tr:hover {
+        background-color: var(--color-surface-2);
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: #0f1623;
+    }
+
+    .flight-id {
+        font-family: 'Monaco', monospace;
+        color: var(--color-accent);
+        font-weight: 600;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: var(--radius-sm);
+        font-size: 12px;
+        font-weight: 600;
+        text-align: center;
+        min-width: 80px;
+    }
+
+    .status-scheduled {
+        background-color: rgba(14, 165, 233, 0.15);
+        color: var(--color-accent);
+        border: 1px solid rgba(14, 165, 233, 0.3);
+    }
+
+    .status-departed {
+        background-color: rgba(245, 158, 11, 0.15);
+        color: var(--color-warning);
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .status-arrived {
+        background-color: rgba(16, 185, 129, 0.15);
+        color: var(--color-success);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    tbody tr:hover .action-buttons {
+        opacity: 1;
+    }
+
+    .btn-icon {
+        width: 32px;
+        height: 32px;
+        border: none;
+        background: transparent;
+        color: var(--color-text-muted);
+        cursor: pointer;
+        border-radius: var(--radius-sm);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+
+    .btn-icon:hover {
+        background-color: var(--color-surface-2);
+        color: var(--color-text-primary);
+    }
+
+    .btn-icon.delete:hover {
+        color: var(--color-danger);
+    }
+
+    .pagination {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--spacing-md);
+        padding: var(--spacing-lg);
+        border-top: 1px solid var(--color-border);
+        font-size: 13px;
+    }
+
+    @media (max-width: 768px) {
+        .action-bar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .action-bar-left {
+            flex-direction: column;
+        }
+
+        table {
+            font-size: 12px;
+        }
+
+        th, td {
+            padding: var(--spacing-sm) var(--spacing-md);
+        }
+
+        .action-buttons {
+            opacity: 1;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Flights</h1>
+    <p class="page-subtitle">Manage and monitor all flights</p>
+</div>
+
+<div class="action-bar">
+    <div class="action-bar-left">
+        <div class="search-input-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <input type="text" placeholder="Search flight, route, or status...">
+        </div>
+
+        <select class="filter-select">
+            <option>Status: All</option>
+            <option>Scheduled</option>
+            <option>Departed</option>
+            <option>Arrived</option>
+            <option>Delayed</option>
+            <option>Cancelled</option>
+        </select>
+
+        <select class="filter-select">
+            <option>Route: All</option>
+            <option>DOM</option>
+            <option>INT</option>
+        </select>
+
+        <select class="filter-select">
+            <option>Date: Today</option>
+            <option>This Week</option>
+            <option>This Month</option>
+        </select>
+    </div>
+
+    <div>
+        <button class="btn-ghost">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Export CSV
+        </button>
+        <button class="btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Add Flight
+        </button>
+    </div>
+</div>
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th><input type="checkbox"></th>
+                <th>Flight No.</th>
+                <th>Route</th>
+                <th>Departure</th>
+                <th>Arrival</th>
+                <th>Aircraft</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><input type="checkbox"></td>
+                <td><span class="flight-id">AL-204</span></td>
+                <td>BOM → DXB</td>
+                <td>12 Apr, 06:45</td>
+                <td>12 Apr, 08:30</td>
+                <td>Boeing 737</td>
+                <td><span class="status-badge status-departed">Departed</span></td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn-icon" title="View"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+                        <button class="btn-icon" title="Edit"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+                        <button class="btn-icon delete" title="Delete"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td><input type="checkbox"></td>
+                <td><span class="flight-id">AL-301</span></td>
+                <td>DEL → BOM</td>
+                <td>12 Apr, 10:15</td>
+                <td>12 Apr, 12:00</td>
+                <td>Airbus A320</td>
+                <td><span class="status-badge status-scheduled">Scheduled</span></td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn-icon" title="View"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+                        <button class="btn-icon" title="Edit"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+                        <button class="btn-icon delete" title="Delete"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td><input type="checkbox"></td>
+                <td><span class="flight-id">AL-405</span></td>
+                <td>BLR → HYD</td>
+                <td>12 Apr, 14:30</td>
+                <td>12 Apr, 16:15</td>
+                <td>Boeing 787</td>
+                <td><span class="status-badge status-arrived">Arrived</span></td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn-icon" title="View"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+                        <button class="btn-icon" title="Edit"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+                        <button class="btn-icon delete" title="Delete"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="pagination">
+        <span>Showing 1–20 of 248 flights</span>
+        <div style="margin-left: auto;">
+            <button class="btn-ghost" style="width: auto;">← Previous</button>
+            <button class="btn-ghost" style="width: auto;">1</button>
+            <button class="btn-ghost" style="width: auto;">2</button>
+            <button class="btn-ghost" style="width: auto;">3</button>
+            <button class="btn-ghost" style="width: auto;">Next →</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
