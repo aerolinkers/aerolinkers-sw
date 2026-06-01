@@ -1,0 +1,9 @@
+*.zip
+*.ino
+*.txt
+!requirements.txt
+
+venv/
+.venv/
+__pycache__/
+*.pyc
